@@ -19,12 +19,12 @@ class Lv1Double extends Phaser.Scene {
         // 45 tiles wide and 25 tiles tall.
         this.monoMap = this.add.tilemap("platform-lv-1-mono", 16, 16, 60, 20);
 
-        // Add a tileset to the map
+        // ------= MONO =------
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
         this.monoTileset = this.monoMap.addTilesetImage("1-bit", "tilemap_tiles_mono");
 
-        // Create a layer
+        // Create layers
         this.monoGroundLayer = this.monoMap.createLayer("MonoGround", this.monoTileset, 0, 0);
         this.monoGroundLayer.setScale(2.8);
         this.monoDecorLayer = this.monoMap.createLayer("MonoDecor", this.monoTileset, 0, 0);
@@ -41,9 +41,16 @@ class Lv1Double extends Phaser.Scene {
               tile.setCollision(false, false, true, false);
             }
         })
+
+        // -- Gems --
+        // this.createFromObjects(this.monoGemlayer, [
+        //     {
+        //         gid: 
+        //     }
+        // ])
   
 
-        // COLOR VER
+        // ------= COLOR =------
         this.colorMap = this.add.tilemap("platform-lv-1-color", 18, 18, 60, 20);
 
         // Add a tileset to the map
@@ -51,19 +58,33 @@ class Lv1Double extends Phaser.Scene {
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
         this.colorTileset = this.colorMap.addTilesetImage("color-set", "tilemap_tiles_color");
 
-        // Create a layer
+        // Create layers
         this.colorGroundLayer = this.colorMap.createLayer("ColorGround", this.colorTileset, 0, 0);
         this.colorGroundLayer.setScale(2.5);
         this.colorDecorLayer = this.colorMap.createLayer("ColorDecor", this.colorTileset, 0, 0);
         this.colorDecorLayer.setScale(2.5);
+        // this.colorGemLayer = this.colorMap.createLayer("ColorGem", this.colorTileset, 0, 0);
+        // this.colorGemLayer.setScale(2.5);
 
         // Make it collidable
         this.colorGroundLayer.setCollisionByProperty({
             collides: true
         });
 
+        // -- Gems --
+        this.colorGems = this.colorMap.createFromObjects("ColorGem", [
+            {
+                gid: 67,
+                key: "coin"
+            }
+        ], true)
+
+        // for (let i of this.colorGems){
+            
+        // }
+
         
-        // set up player avatar
+        // ------= Player Avatar =------
         my.sprite.player = this.physics.add.sprite(playerX, playerY, "platformer_characters", "tile_0000.png").setScale(SCALE)
         my.sprite.player.body.setVelocityX(playerVeloX);
         my.sprite.player.body.setVelocityY(playerVeloY);
@@ -71,7 +92,6 @@ class Lv1Double extends Phaser.Scene {
 
         // Enable collision handling
         this.monoCollider = this.physics.add.collider(my.sprite.player, this.monoGroundLayer);
-        
         this.colorCollider = this.physics.add.collider(my.sprite.player, this.colorGroundLayer);
         this.physics.world.setBounds(0, 0, 900*3, 320*2.81);
 
@@ -85,26 +105,22 @@ class Lv1Double extends Phaser.Scene {
         }, this);
 
 
-
         // Set up camera
-        // this.cameras.main.setBounds(0, 0, this.groundLayer.widthInPixels/2, this.groundLayer.heightInPixels);
         this.cameras.main.setBounds(0, 0, 900*3, 320*2.81);
-        // this.cameras.main.setBounds(0, 0, 900, 900);
         this.cameras.main.setZoom(1.5);
-        // this.cameras.main.setScroll();
-        // this.cameras.main.centerOn(my.sprite.player.x, my.sprite.player.y);
-        // setLerp
 
-        // mono initially off
+
+        // Set Mono to be initially off
         this.monoCollider.active = false;
         this.monoGroundLayer.setAlpha(0);
         this.monoDecorLayer.setAlpha(0);
+        this.cameras.main.setBackgroundColor(0x6dcbe8);
 
-        
         // Scene Switch (assigned to Space key)
         this.input.keyboard.on('keydown-SPACE', () => {
             if(this.isColor){
-                console.log("Switch to mono");
+                // console.log("Switch to mono");
+                this.cameras.main.setBackgroundColor(0x080f1c);
                 this.isColor = false;
                 this.colorCollider.active = false;
                 this.colorGroundLayer.setAlpha(0);
@@ -115,7 +131,8 @@ class Lv1Double extends Phaser.Scene {
                 this.monoDecorLayer.setAlpha(1);
 
             } else {
-                console.log("Switch to color");
+                // console.log("Switch to color");
+                this.cameras.main.setBackgroundColor(0x6dcbe8);
                 this.isColor = true;
                 this.colorCollider.active = true;
                 this.colorGroundLayer.setAlpha(1);
@@ -124,15 +141,7 @@ class Lv1Double extends Phaser.Scene {
                 this.monoCollider.active = false;
                 this.monoGroundLayer.setAlpha(0);
                 this.monoDecorLayer.setAlpha(0);
-
-
             }
-        }, this);
-
-        // Scene Switch Testing (assigned to V key)
-        this.input.keyboard.on('keydown-V', () => {
-            console.log("Switch to double");
-            this.scene.start("colorLv1Scene");
         }, this);
 
     }

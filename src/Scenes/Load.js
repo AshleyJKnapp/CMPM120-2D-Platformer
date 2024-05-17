@@ -8,6 +8,9 @@ class Load extends Phaser.Scene {
 
         this.load.setPath("./assets/");
 
+        // -- Load Gem Sprite --
+        this.load.image("gemImg", "tile_0067.png");
+
         // -- Load characters spritesheet --
         this.load.atlas("platformer_characters", "tilemap-characters-packed.png", "tilemap-characters-packed.json");
 
