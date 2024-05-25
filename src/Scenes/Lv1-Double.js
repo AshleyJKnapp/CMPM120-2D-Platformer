@@ -5,6 +5,7 @@ class Lv1Double extends Phaser.Scene {
 
     init() {
         // variables and settings
+        gemPts = 0;
         this.ACCELERATION = 500;
         this.DRAG = 700;    // DRAG < ACCELERATION = icy slide
         // this.physics.world.gravity.y = 1000;
@@ -15,20 +16,24 @@ class Lv1Double extends Phaser.Scene {
     }
 
     create() {
+        // ------= MONO =------
         // Create a new tilemap game object which uses 16x16 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
         this.monoMap = this.add.tilemap("platform-lv-1-mono", 16, 16, 60, 20);
 
-        // ------= MONO =------
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
         this.monoTileset = this.monoMap.addTilesetImage("1-bit", "tilemap_tiles_mono");
+        this.inputTileset = this.monoMap.addTilesetImage("input-set", "tilemap_tiles_input");
 
         // Create layers
         this.monoGroundLayer = this.monoMap.createLayer("MonoGround", this.monoTileset, 0, 0);
-        this.monoGroundLayer.setScale(2.8);
+        this.monoGroundLayer.setScale(2.81);
         this.monoDecorLayer = this.monoMap.createLayer("MonoDecor", this.monoTileset, 0, 0);
-        this.monoDecorLayer.setScale(2.8);
+        this.monoDecorLayer.setScale(2.81);
+        // Keep this active always since its the same on both mono and color
+        this.inputLayer = this.monoMap.createLayer("Input", this.inputTileset, 0, 0);
+        this.inputLayer.setScale(2.81);
 
         // Make it collidable
         this.monoGroundLayer.setCollisionByProperty({
@@ -41,13 +46,6 @@ class Lv1Double extends Phaser.Scene {
               tile.setCollision(false, false, true, false);
             }
         })
-
-        // -- Gems --
-        // this.createFromObjects(this.monoGemlayer, [
-        //     {
-        //         gid: 
-        //     }
-        // ])
   
 
         // ------= COLOR =------
@@ -63,8 +61,6 @@ class Lv1Double extends Phaser.Scene {
         this.colorGroundLayer.setScale(2.5);
         this.colorDecorLayer = this.colorMap.createLayer("ColorDecor", this.colorTileset, 0, 0);
         this.colorDecorLayer.setScale(2.5);
-        // this.colorGemLayer = this.colorMap.createLayer("ColorGem", this.colorTileset, 0, 0);
-        // this.colorGemLayer.setScale(2.5);
 
         // Make it collidable
         this.colorGroundLayer.setCollisionByProperty({
@@ -72,28 +68,74 @@ class Lv1Double extends Phaser.Scene {
         });
 
         // -- Gems --
-        this.colorGems = this.colorMap.createFromObjects("ColorGem", [
-            {
-                gid: 67,
-                key: "coin"
-            }
-        ], true)
-
-        // for (let i of this.colorGems){
-            
-        // }
-
+        my.sprite.colorGems = this.colorMap.createFromObjects("ColorGem", {
+            name: "Gem",
+            key: "colorGemImg",
+            id: 67
+        });
+        my.sprite.colorGems.forEach(gem => {
+            gem.x *= 2.5;
+            gem.y *= 2.5;
+            gem.setScale(2.5);
+        });
+        // Do Monogems relying off of colorgems so they use the same exact placement
+        my.sprite.monoGems = this.colorMap.createFromObjects("ColorGem", {
+            name: "Gem",
+            key: "monoGemImg",
+            id: 67
+        });
+        my.sprite.monoGems.forEach(gem => {
+            gem.x *= 2.5;
+            gem.y *= 2.5;
+            gem.setScale(2.5);
+            gem.visible = false;
+        });
         
+        // Enable collision of gems
+        //color
+        this.physics.world.enable(my.sprite.colorGems, Phaser.Physics.Arcade.STATIC_BODY);
+        this.colorGemGroup = this.add.group(my.sprite.colorGems);
+        //mono
+        this.physics.world.enable(my.sprite.monoGems, Phaser.Physics.Arcade.STATIC_BODY);
+        this.monoGemGroup = this.add.group(my.sprite.monoGems);
+
+        // End Goal Collision
+        my.sprite.endFlag = this.monoMap.createFromObjects("EndGoal", {
+            name: "End"
+        });
+        my.sprite.endFlag.forEach(gem => {
+            gem.x *= 2.81;
+            gem.y *= 2.81;
+            gem.setScale(1);
+            gem.visible = false;
+        });
+        this.physics.world.enable(my.sprite.endFlag, Phaser.Physics.Arcade.STATIC_BODY);
+        this.endFlagGroup = this.add.group(my.sprite.endFlag);
+
         // ------= Player Avatar =------
-        my.sprite.player = this.physics.add.sprite(playerX, playerY, "platformer_characters", "tile_0000.png").setScale(SCALE)
-        my.sprite.player.body.setVelocityX(playerVeloX);
-        my.sprite.player.body.setVelocityY(playerVeloY);
+        my.sprite.player = this.physics.add.sprite(game.config.width/4, 700, "platformer_characters", "tile_0000.png").setScale(SCALE)
         my.sprite.player.setCollideWorldBounds(true);
 
         // Enable collision handling
         this.monoCollider = this.physics.add.collider(my.sprite.player, this.monoGroundLayer);
         this.colorCollider = this.physics.add.collider(my.sprite.player, this.colorGroundLayer);
         this.physics.world.setBounds(0, 0, 900*3, 320*2.81);
+        // Color Gem collision
+        this.physics.add.overlap(my.sprite.player, this.colorGemGroup, (obj1, obj2) => {
+            obj2.destroy(); // remove coin on overlap
+            gemPts++;
+        });
+        // Mono Gem collision
+        this.physics.add.overlap(my.sprite.player, this.monoGemGroup, (obj1, obj2) => {
+            obj2.destroy(); // remove coin on overlap
+        });
+        // only one set of gems adds to score because both are always active
+        // End Goal
+        this.physics.add.overlap(my.sprite.player, this.endFlagGroup, (obj1, obj2) => {
+            // console.log("end game");
+            this.scene.start("endScene");
+        });
+
 
         // set up Phaser-provided cursor key input
         cursors = this.input.keyboard.createCursorKeys();
@@ -104,12 +146,36 @@ class Lv1Double extends Phaser.Scene {
             this.physics.world.debugGraphic.clear()
         }, this);
 
+        // --------== GUI Text ==---------
+        this.scoreTxt = this.add.text(90, 10, "0/4", {
+            fontFamily: "'Freeman'",
+            fontSize: 75,
+            align: "right",
+            stroke: '#444444',
+            strokeThickness: 8
+            // fixedWidth: 400,
+            // fixedHeight: 50
+        });
+        this.colorGemTxt = this.add.sprite(50, 55, "colorGemImg");
+        this.colorGemTxt.scale = 4;
+        this.monoGemTxt = this.add.sprite(50, 55, "monoGemImg");
+        this.monoGemTxt.scale = 4;
+        this.monoGemTxt.visible = false;
+
 
         // Set up camera
         this.cameras.main.setBounds(0, 0, 900*3, 320*2.81);
         this.cameras.main.setZoom(1.5);
+        let uiElems = [this.colorGemTxt, this.monoGemTxt, this.scoreTxt];
+        this.cameras.main.ignore(uiElems)
+        // Set up UI camera
+        this.cameras.ui = this.cameras.add(0, 0, 900*3, 320*2.81);
+        // let gameElems = [my.sprite.player, this.monoGroundLayer, this.monoDecorLayer, this.monoGemGroup, this.colorGroundLayer, this.colorDecorLayer, this.colorGemGroup, this.inputLayer];
+        let gameElems = [my.sprite.player, this.monoGroundLayer, this.monoDecorLayer, this.monoGemGroup, this.colorGroundLayer, this.colorDecorLayer, this.colorGemGroup, this.inputLayer, this.physics.world.debugGraphic]; // Debug version
+        this.cameras.ui.ignore(gameElems);
 
-
+        
+        
         // Set Mono to be initially off
         this.monoCollider.active = false;
         this.monoGroundLayer.setAlpha(0);
@@ -125,10 +191,19 @@ class Lv1Double extends Phaser.Scene {
                 this.colorCollider.active = false;
                 this.colorGroundLayer.setAlpha(0);
                 this.colorDecorLayer.setAlpha(0);
+                this.colorGemTxt.visible = false;
 
                 this.monoCollider.active = true;
                 this.monoGroundLayer.setAlpha(1);
                 this.monoDecorLayer.setAlpha(1);
+                this.monoGemTxt.visible = true;
+
+                my.sprite.colorGems.forEach(gem => {
+                    gem.visible = false;
+                });
+                my.sprite.monoGems.forEach(gem => {
+                    gem.visible = true;
+                });
 
             } else {
                 // console.log("Switch to color");
@@ -137,22 +212,29 @@ class Lv1Double extends Phaser.Scene {
                 this.colorCollider.active = true;
                 this.colorGroundLayer.setAlpha(1);
                 this.colorDecorLayer.setAlpha(1);
+                this.colorGemTxt.visible = true;
 
                 this.monoCollider.active = false;
                 this.monoGroundLayer.setAlpha(0);
                 this.monoDecorLayer.setAlpha(0);
+                this.monoGemTxt.visible = false;
+
+                my.sprite.colorGems.forEach(gem => {
+                    gem.visible = true;
+                });
+                my.sprite.monoGems.forEach(gem => {
+                    gem.visible = false;
+                });
+
             }
-        }, this);
+        }, this);        
 
     }
 
     update() {
-        playerX = my.sprite.player.x;
-        playerY = my.sprite.player.y;
-        playerVeloX = my.sprite.player.body.velocity.x;
-        playerVeloY = my.sprite.player.body.velocity.y;
-        // console.log("Acceleration: "+my.sprite.player.body.accelerationX);
+        this.scoreTxt.setText(gemPts+"/4");
         this.cameras.main.centerOn(my.sprite.player.x, my.sprite.player.y);
+
         if(cursors.left.isDown) {
             // TODO: have the player accelerate to the left
             // if (my.sprite.player.body.accelerationX > 0){

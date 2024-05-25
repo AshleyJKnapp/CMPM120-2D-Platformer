@@ -135,19 +135,19 @@
                  "gid":468,
                  "height":18,
                  "id":10,
-                 "name":"",
+                 "name":"Gem",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":18,
-                 "x":107.9375,
-                 "y":158.9375
+                 "x":107.938,
+                 "y":158.938
                 }, 
                 {
                  "gid":468,
                  "height":18,
                  "id":11,
-                 "name":"",
+                 "name":"Gem",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -159,7 +159,7 @@
                  "gid":468,
                  "height":18,
                  "id":12,
-                 "name":"",
+                 "name":"Gem",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -171,13 +171,13 @@
                  "gid":468,
                  "height":18,
                  "id":13,
-                 "name":"",
+                 "name":"Gem",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":18,
                  "x":954,
-                 "y":357.0625
+                 "y":357.063
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -186,7 +186,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":16,
+ "nextobjectid":18,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
@@ -600,6 +600,15 @@
                  "properties":[
                         {
                          "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":111,
+                 "properties":[
+                        {
+                         "name":"endFlag",
                          "type":"bool",
                          "value":true
                         }]

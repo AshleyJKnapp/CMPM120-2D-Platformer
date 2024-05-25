@@ -4,12 +4,11 @@ class Load extends Phaser.Scene {
     }
 
     preload() {
-        playerX = game.config.width/4;
-
         this.load.setPath("./assets/");
 
         // -- Load Gem Sprite --
-        this.load.image("gemImg", "tile_0067.png");
+        this.load.image("colorGemImg", "tile_0067.png");
+        this.load.image("monoGemImg", "tile_0082.png");
 
         // -- Load characters spritesheet --
         this.load.atlas("platformer_characters", "tilemap-characters-packed.png", "tilemap-characters-packed.json");
@@ -17,11 +16,15 @@ class Load extends Phaser.Scene {
         // -- Load tilemap information --
         // mono
         this.load.image("tilemap_tiles_mono", "monochrome_tilemap_transparent_packed.png");                         // Packed tilemap
+        this.load.image("tilemap_tiles_input", "tilemap_white_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platform-lv-1-mono", "lv-1-mono.tmj");   // Tilemap in JSON
 
         // color
         this.load.image("tilemap_tiles_color", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platform-lv-1-color", "lv-1-color.tmj");   // Tilemap in JSON
+
+        // Controls
+        // this.load.image("spaceImg", "");
 
     }
 
@@ -58,6 +61,7 @@ class Load extends Phaser.Scene {
 
         // ...and pass to the next Scene
         this.scene.start("Lv1Scene");
+        // this.scene.start("endScene");
     }
 
     // Never get here since a new scene is started in create()

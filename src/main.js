@@ -31,15 +31,12 @@ let config = {
     },
     width: 1440,
     height: 900,
-    scene: [Load, Lv1Double]
+    scene: [Load, Lv1Double, End]
 }
 
 var cursors;
 const SCALE = 2.0;
 var my = {sprite: {}, text: {}};
-var playerX = 0;
-var playerY = 700;
-var playerVeloX = 0;
-var playerVeloY = 0;
+var gemPts = 0;
 
 const game = new Phaser.Game(config);
