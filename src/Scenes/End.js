@@ -7,15 +7,12 @@ class End extends Phaser.Scene {
     }
 
     create() {
-        // console.log(game.config.width)
         this.endTxt = this.add.text(game.config.width/3, game.config.height/3, "Level Complete!", {
             fontFamily: "'Freeman'",
             fontSize: 75,
             align: "center",
             stroke: '#444444',
             strokeThickness: 8
-            // fixedWidth: 400,
-            // fixedHeight: 50
         });
 
         this.replayTxt = this.add.text(400, 500, "Press space to replay", {
@@ -24,8 +21,6 @@ class End extends Phaser.Scene {
             align: "center",
             stroke: '#444444',
             strokeThickness: 8
-            // fixedWidth: 400,
-            // fixedHeight: 50
         });
 
         //if spacebar then switch
@@ -34,7 +29,6 @@ class End extends Phaser.Scene {
         }, this);
     }
 
-    // Never get here since a new scene is started in create()
     update() {
     }
 }

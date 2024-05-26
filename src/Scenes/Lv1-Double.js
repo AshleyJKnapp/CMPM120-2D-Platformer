@@ -13,9 +13,16 @@ class Lv1Double extends Phaser.Scene {
         this.JUMP_VELOCITY = -800;
         // this.JUMP_VELOCITY = -1000;
         this.isColor = true;
+        this.airBorn = false;
+        this.counter = 0;
     }
 
     create() {
+        // BGM
+        // this.bgMusic = game.add.audio("BGM");
+        // this.bgMusic.loop = true;
+        // this.bgMusic.play();
+
         // ------= MONO =------
         // Create a new tilemap game object which uses 16x16 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
@@ -90,6 +97,24 @@ class Lv1Double extends Phaser.Scene {
             gem.setScale(2.5);
             gem.visible = false;
         });
+
+        // Gem floating animation
+        this.tweens.add({
+            targets: my.sprite.colorGems,
+            y: "-=5",
+            duration: 1000,
+            ease: "Sine.easeInOut",
+            yoyo: true,
+            repeat: -1
+        });
+        this.tweens.add({
+            targets: my.sprite.monoGems,
+            y: "-=5",
+            duration: 1000,
+            ease: "Sine.easeInOut",
+            yoyo: true,
+            repeat: -1
+        });
         
         // Enable collision of gems
         //color
@@ -124,6 +149,7 @@ class Lv1Double extends Phaser.Scene {
         this.physics.add.overlap(my.sprite.player, this.colorGemGroup, (obj1, obj2) => {
             obj2.destroy(); // remove coin on overlap
             gemPts++;
+            this.sound.play("collectSFX");
         });
         // Mono Gem collision
         this.physics.add.overlap(my.sprite.player, this.monoGemGroup, (obj1, obj2) => {
@@ -133,8 +159,20 @@ class Lv1Double extends Phaser.Scene {
         // End Goal
         this.physics.add.overlap(my.sprite.player, this.endFlagGroup, (obj1, obj2) => {
             // console.log("end game");
+            this.sound.play("finishSFX");
             this.scene.start("endScene");
         });
+
+        // walking particle
+        this.stepParticle = this.add.particles(0, 0, "stepDust1", {
+            frames: ["stepDust1", "stepDust2", "stepDust3"],
+            scale: { start: 0.05, end: 0.125 },
+            alpha: { start: 1, end: 0 },
+            lifespan: 300,
+            gravityY: -400
+        })
+        this.stepParticle.startFollow(my.sprite.player, my.sprite.player.displayWidth/2, my.sprite.player.displayHeight/2-5, false);
+        this.stepParticle.stop();
 
 
         // set up Phaser-provided cursor key input
@@ -153,8 +191,6 @@ class Lv1Double extends Phaser.Scene {
             align: "right",
             stroke: '#444444',
             strokeThickness: 8
-            // fixedWidth: 400,
-            // fixedHeight: 50
         });
         this.colorGemTxt = this.add.sprite(50, 55, "colorGemImg");
         this.colorGemTxt.scale = 4;
@@ -171,7 +207,7 @@ class Lv1Double extends Phaser.Scene {
         // Set up UI camera
         this.cameras.ui = this.cameras.add(0, 0, 900*3, 320*2.81);
         // let gameElems = [my.sprite.player, this.monoGroundLayer, this.monoDecorLayer, this.monoGemGroup, this.colorGroundLayer, this.colorDecorLayer, this.colorGemGroup, this.inputLayer];
-        let gameElems = [my.sprite.player, this.monoGroundLayer, this.monoDecorLayer, this.monoGemGroup, this.colorGroundLayer, this.colorDecorLayer, this.colorGemGroup, this.inputLayer, this.physics.world.debugGraphic]; // Debug version
+        let gameElems = [my.sprite.player, this.monoGroundLayer, this.monoDecorLayer, this.monoGemGroup, this.colorGroundLayer, this.colorDecorLayer, this.colorGemGroup, this.inputLayer, this.stepParticle, this.physics.world.debugGraphic]; // Debug version
         this.cameras.ui.ignore(gameElems);
 
         
@@ -184,6 +220,7 @@ class Lv1Double extends Phaser.Scene {
 
         // Scene Switch (assigned to Space key)
         this.input.keyboard.on('keydown-SPACE', () => {
+            this.sound.play("switchSFX");
             if(this.isColor){
                 // console.log("Switch to mono");
                 this.cameras.main.setBackgroundColor(0x080f1c);
@@ -232,49 +269,52 @@ class Lv1Double extends Phaser.Scene {
     }
 
     update() {
+        this.counter++;
+        this.stepParticle.stop();
+
         this.scoreTxt.setText(gemPts+"/4");
         this.cameras.main.centerOn(my.sprite.player.x, my.sprite.player.y);
-
-        if(cursors.left.isDown) {
-            // TODO: have the player accelerate to the left
-            // if (my.sprite.player.body.accelerationX > 0){
-            //     my.sprite.player.body.setAccelerationX(0);
-            // }
-            // my.sprite.player.body.setAccelerationX(-this.ACCELERATION);
-            my.sprite.player.body.setVelocityX(-this.ACCELERATION);
-            
-            my.sprite.player.resetFlip();
-            my.sprite.player.anims.play('walk', true);
-
-        } else if(cursors.right.isDown) {
-            // TODO: have the player accelerate to the right
-            // if acceleration is - then set to 0
-            // if (my.sprite.player.body.accelerationX < 0){
-            //     my.sprite.player.body.setAccelerationX(0);
-            // }
-            my.sprite.player.body.setVelocityX(this.ACCELERATION);
-
-            my.sprite.player.setFlip(true, false);
-            my.sprite.player.anims.play('walk', true);
-
-        } else {
-            // TODO: set acceleration to 0 and have DRAG take over
-            my.sprite.player.body.setAccelerationX(0);
-            // my.sprite.player.body.setDragX(this.DRAG);
-            my.sprite.player.body.setDragX(5000);
-
-            my.sprite.player.anims.play('idle');
-        }
 
         // player jump
         // note that we need body.blocked rather than body.touching b/c the former applies to tilemap tiles and the latter to the "ground"
         if(!my.sprite.player.body.blocked.down) {
             my.sprite.player.anims.play('jump');
-        }
+            // this.airBorn = true;
+        } else {this.airBorn = false;}
         if(my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up)) {
-            // TODO: set a Y velocity to have the player "jump" upwards (negative Y direction)
+            this.sound.play("jumpSFX");
             my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
-
+            this.airBorn = true;
         }
+
+        if(cursors.left.isDown) {
+            my.sprite.player.body.setVelocityX(-this.ACCELERATION);
+
+            my.sprite.player.resetFlip();
+            my.sprite.player.anims.play('walk', true);
+            if (!this.airBorn && this.counter > 10){
+                this.sound.play("stepSFX");
+                this.stepParticle.start();
+                this.counter = 0;
+            }
+
+        } else if(cursors.right.isDown) {
+            my.sprite.player.body.setVelocityX(this.ACCELERATION);
+            
+            my.sprite.player.setFlip(true, false);
+            my.sprite.player.anims.play('walk', true);
+            if (!this.airBorn && this.counter > 10){
+                this.sound.play("stepSFX");
+                this.stepParticle.start();
+                this.counter = 0;
+            }
+
+        } else {
+            my.sprite.player.body.setAccelerationX(0);
+            my.sprite.player.body.setDragX(5000);
+
+            my.sprite.player.anims.play('idle');
+        }
+
     }
 }

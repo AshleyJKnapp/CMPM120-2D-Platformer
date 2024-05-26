@@ -23,12 +23,26 @@ class Load extends Phaser.Scene {
         this.load.image("tilemap_tiles_color", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platform-lv-1-color", "lv-1-color.tmj");   // Tilemap in JSON
 
-        // Controls
-        // this.load.image("spaceImg", "");
+        // audio
+        this.load.audio("collectSFX", "impactCollect.ogg");
+        this.load.audio("stepSFX", "impactFootstep.ogg");
+        this.load.audio("finishSFX", "jinglesComplete.ogg");
+        this.load.audio("jumpSFX", "phaserJump.ogg");
+        this.load.audio("switchSFX", "pepSound3.ogg");
+        this.load.audio("BGM", "bgm.wav");
+        // BGM from https://freesound.org/people/code_box/sounds/653811/
+
+        // particles
+        this.load.image("stepDust1", "smoke_04.png");
 
     }
 
     create() {
+        // BGM done here because we don't want it to start playing again when restarting the game scene
+        this.bgMusic = this.sound.add("BGM");
+        this.bgMusic.loop = true;
+        this.bgMusic.play();
+
         this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNames('platformer_characters', {

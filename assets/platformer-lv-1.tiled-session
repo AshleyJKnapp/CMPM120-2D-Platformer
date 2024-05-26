@@ -54,17 +54,20 @@
             "expandedObjectLayers": [
                 6
             ],
-            "scale": 5.5,
+            "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 480,
-                "y": 159.9090909090909
+                "x": 188,
+                "y": 210.99999999999997
             }
         },
         "lv-1-mono.tmx#1-bit": {
             "scaleInDock": 1
         },
         "lv-1-mono.tmx#color-set": {
+            "scaleInDock": 1
+        },
+        "lv-1-mono.tmx#input-set": {
             "scaleInDock": 1
         }
     },
