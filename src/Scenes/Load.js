@@ -6,35 +6,42 @@ class Load extends Phaser.Scene {
     preload() {
         this.load.setPath("./assets/");
 
-        // -- Load Gem Sprite --
-        this.load.image("colorGemImg", "tile_0067.png");
-        this.load.image("monoGemImg", "tile_0082.png");
-
         // -- Load characters spritesheet --
+        // from https://kenney.nl/assets/1-bit-platformer-pack
         this.load.atlas("platformer_characters", "tilemap-characters-packed.png", "tilemap-characters-packed.json");
 
         // -- Load tilemap information --
         // mono
+        // from https://kenney.nl/assets/1-bit-platformer-pack
         this.load.image("tilemap_tiles_mono", "monochrome_tilemap_transparent_packed.png");                         // Packed tilemap
         this.load.image("tilemap_tiles_input", "tilemap_white_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platform-lv-1-mono", "lv-1-mono.tmj");   // Tilemap in JSON
 
         // color
+        // from https://kenney.nl/assets/pixel-platformer
         this.load.image("tilemap_tiles_color", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platform-lv-1-color", "lv-1-color.tmj");   // Tilemap in JSON
 
-        // audio
-        this.load.audio("collectSFX", "impactCollect.ogg");
-        this.load.audio("stepSFX", "impactFootstep.ogg");
-        this.load.audio("finishSFX", "jinglesComplete.ogg");
-        this.load.audio("jumpSFX", "phaserJump.ogg");
-        this.load.audio("switchSFX", "pepSound3.ogg");
-        this.load.audio("BGM", "bgm.wav");
-        // BGM from https://freesound.org/people/code_box/sounds/653811/
+        
+        // gem sprites
+        this.load.image("colorGemImg", "tile_0067.png");
+        this.load.image("monoGemImg", "tile_0082.png");
 
         // particles
+        // From https://kenney.nl/assets/particle-pack
         this.load.image("stepDust1", "smoke_04.png");
 
+        // -- Audio --
+        // from https://kenney.nl/assets/impact-sounds
+        this.load.audio("collectSFX", "impactCollect.ogg");
+        this.load.audio("stepSFX", "impactFootstep.ogg");
+        // from https://kenney.nl/assets/music-jingles
+        this.load.audio("finishSFX", "jinglesComplete.ogg");
+        // from https://kenney.nl/assets/digital-audio
+        this.load.audio("jumpSFX", "phaserJump.ogg");
+        this.load.audio("switchSFX", "pepSound3.ogg");
+        // BGM from https://freesound.org/people/code_box/sounds/653811/
+        this.load.audio("BGM", "bgm.wav");
     }
 
     create() {

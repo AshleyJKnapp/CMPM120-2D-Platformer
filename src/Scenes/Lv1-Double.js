@@ -7,22 +7,15 @@ class Lv1Double extends Phaser.Scene {
         // variables and settings
         gemPts = 0;
         this.ACCELERATION = 500;
-        this.DRAG = 700;    // DRAG < ACCELERATION = icy slide
-        // this.physics.world.gravity.y = 1000;
+        this.DRAG = 700;
         this.physics.world.gravity.y = 2000;
         this.JUMP_VELOCITY = -800;
-        // this.JUMP_VELOCITY = -1000;
         this.isColor = true;
         this.airBorn = false;
         this.counter = 0;
     }
 
     create() {
-        // BGM
-        // this.bgMusic = game.add.audio("BGM");
-        // this.bgMusic.loop = true;
-        // this.bgMusic.play();
-
         // ------= MONO =------
         // Create a new tilemap game object which uses 16x16 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
